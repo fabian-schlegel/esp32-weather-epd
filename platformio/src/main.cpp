@@ -18,6 +18,7 @@
 #include <Arduino.h>
 #include <Adafruit_BME280.h>
 #include <Adafruit_Sensor.h>
+#include <om_api_response.h>
 #include <Preferences.h>
 #include <time.h>
 #include <WiFi.h>
@@ -38,8 +39,8 @@
 #endif
 
 // too large to allocate locally on stack
-static owm_resp_onecall_t       owm_onecall;
-static owm_resp_air_pollution_t owm_air_pollution;
+static om_resp_t       om_resp;
+//static owm_resp_air_pollution_t owm_air_pollution;
 
 Preferences prefs;
 
@@ -252,11 +253,11 @@ void setup()
   WiFiClientSecure client;
   client.setCACert(cert_Sectigo_RSA_Domain_Validation_Secure_Server_CA);
 #endif
-  int rxStatus = getOWMonecall(client, owm_onecall);
+  int rxStatus = getOM(client, om_resp);
   if (rxStatus != HTTP_CODE_OK)
   {
     killWiFi();
-    statusStr = "One Call " + OWM_ONECALL_VERSION + " API";
+    statusStr = "OpenMeteo API";
     tmpStr = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
     initDisplay();
     do
@@ -266,20 +267,21 @@ void setup()
     powerOffDisplay();
     beginDeepSleep(startTime, &timeInfo);
   }
-  rxStatus = getOWMairpollution(client, owm_air_pollution);
-  if (rxStatus != HTTP_CODE_OK)
-  {
-    killWiFi();
-    statusStr = "Air Pollution API";
-    tmpStr = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
-    initDisplay();
-    do
-    {
-      drawError(wi_cloud_down_196x196, statusStr, tmpStr);
-    } while (display.nextPage());
-    powerOffDisplay();
-    beginDeepSleep(startTime, &timeInfo);
-  }
+
+  //rxStatus = getOWMairpollution(client, owm_air_pollution);
+  //if (rxStatus != HTTP_CODE_OK)
+  //{
+  //  killWiFi();
+  //  statusStr = "Air Pollution API";
+  //  tmpStr = String(rxStatus, DEC) + ": " + getHttpResponsePhrase(rxStatus);
+  //  initDisplay();
+  //  do
+  //  {
+  //    drawError(wi_cloud_down_196x196, statusStr, tmpStr);
+  //  } while (display.nextPage());
+  //  powerOffDisplay();
+  //  beginDeepSleep(startTime, &timeInfo);
+  //}
   killWiFi(); // WiFi no longer needed
 
   // GET INDOOR TEMPERATURE AND HUMIDITY, start BME280...
@@ -327,13 +329,13 @@ void setup()
   initDisplay();
   do
   {
-    drawCurrentConditions(owm_onecall.current, owm_onecall.daily[0],
-                          owm_air_pollution, inTemp, inHumidity);
-    drawForecast(owm_onecall.daily, timeInfo);
+    //drawCurrentConditions(owm_onecall.current, owm_onecall.daily[0],
+    //                      owm_air_pollution, inTemp, inHumidity);
+    //drawForecast(owm_onecall.daily, timeInfo);
     drawLocationDate(CITY_STRING, dateStr);
-    drawOutlookGraph(owm_onecall.hourly, timeInfo);
+    //drawOutlookGraph(owm_onecall.hourly, timeInfo);
 #if DISPLAY_ALERTS
-    drawAlerts(owm_onecall.alerts, CITY_STRING, dateStr);
+    //drawAlerts(owm_onecall.alerts, CITY_STRING, dateStr);
 #endif
     drawStatusBar(statusStr, refreshTimeStr, wifiRSSI, batteryVoltage);
   } while (display.nextPage());
