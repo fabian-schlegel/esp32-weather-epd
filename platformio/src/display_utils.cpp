@@ -81,10 +81,10 @@ uint32_t readBatteryVoltage()
 /* Returns battery percentage, rounded to the nearest integer.
  * Takes a voltage in millivolts and uses a sigmoidal approximation to find an
  * approximation of the battery life percentage remaining.
- * 
- * This function contains LGPLv3 code from 
+ *
+ * This function contains LGPLv3 code from
  * <https://github.com/rlogiacco/BatterySense>.
- * 
+ *
  * Symmetric sigmoidal approximation
  * <https://www.desmos.com/calculator/7m9lu26vpy>
  *
@@ -1427,7 +1427,7 @@ const char *getCompassPointNotation(int windDeg)
 #endif
 
   windDeg %= 360; // enforce domain
-  int arr_offset = (int) (windDeg / ( 360 / (float) precision )) 
+  int arr_offset = (int) (windDeg / ( 360 / (float) precision ))
                          * ( 32 / precision) ;
 
   return COMPASS_POINT_NOTATION[arr_offset];
@@ -1446,7 +1446,7 @@ const char *getCompassPointNotation(int windDeg)
  *
  * ArduinoJson DeserializationError codes [-256, -511]
  * https://arduinojson.org/v6/api/misc/deserializationerror/
- * 
+ *
  * WiFi Status codes [-512, -767]
  * https://github.com/espressif/arduino-esp32/blob/master/libraries/WiFi/src/WiFiType.h
  */
@@ -1598,3 +1598,203 @@ void disableBuiltinLED()
   gpio_deep_sleep_hold_en();
   return;
 } // end disableBuiltinLED
+
+const uint8_t *getForecastOMBitmap64(const om_daily_t &daily)
+{
+    int id = daily.weather_code;
+    bool cloudy = ((daily.sunshine_duration / daily.daylight_duration) * 100) < 60.25;
+    // always using the day icon for weather forecast
+    bool day = true;
+    bool windy = (daily.wind_speed_10m_max >= 35);
+
+    switch (id)
+    {
+      case 0:  // Clear sky
+        if (day && !windy)  {return wi_day_sunny_64x64;}
+        if (day && windy)   {return wi_day_windy_64x64;}
+        if (!day && !windy) {return wi_stars_64x64;}
+        if (!day && windy)  {return wi_strong_wind_64x64;}
+
+      case 1:  // Mainly clear
+        if (day && !windy)  {return wi_day_sunny_overcast_64x64;}
+        if (day && windy)   {return wi_day_cloudy_gusts_64x64;}
+        if (!day && !windy) {return wi_night_alt_partly_cloudy_64x64;}
+        if (!day && windy)  {return wi_night_alt_cloudy_gusts_64x64;}
+
+      case 2:  // Partly cloudy
+        if (day && !windy)  {return wi_day_cloudy_64x64;}
+        if (day && windy)   {return wi_day_cloudy_gusts_64x64;}
+        if (!day && !windy) {return wi_night_alt_cloudy_64x64;}
+        if (!day && windy)  {return wi_night_alt_cloudy_gusts_64x64;}
+
+      case 3:  // Overcast
+        if (day && !windy)  {return wi_cloudy_64x64;}
+        if (day && windy)   {return wi_cloudy_gusts_64x64;}
+        if (!day && !windy) {return wi_cloudy_64x64;}
+        if (!day && windy)  {return wi_cloudy_gusts_64x64;}
+
+      case 45: // Fog
+        if (day)  {return wi_fog_64x64;}
+        if (!day)  {return wi_night_fog_64x64;}
+
+      case 48: // Depositing Rime wi_fog
+        if (day)  {return wi_fog_64x64;}
+        if (!day) {return wi_night_fog_64x64;}
+
+      case 51: // Drizzle Light
+      case 53: // Drizzle Moderate
+      case 55: // Drizzle Dense
+      case 56: // Freezing Drizzle Light
+      case 57: // Freezing Drizzle Dense intensity
+        if (day && !cloudy)  {return wi_day_sprinkle_64x64;}
+        if (day && cloudy)   {return wi_sprinkle_64x64;}
+        if (!day && !cloudy) {return wi_night_alt_sprinkle_64x64;}
+        if (!day && cloudy)  {return wi_sprinkle_64x64;}
+
+      case 61: // Rain Slight
+      case 63: // Rain Moderate
+      case 65: // Rain Heavy
+      case 66: // Freezing Rain Light
+      case 67: // Freezing Rain Heavy
+        if (day && !cloudy)  {return wi_day_rain_64x64;}
+        if (day && cloudy)   {return wi_rain_64x64;}
+        if (!day && !cloudy) {return wi_night_alt_rain_64x64;}
+        if (!day && cloudy)  {return wi_rain_64x64;}
+
+      case 80: // Rain Showers Slight
+      case 81: // Rain Showers Moderate
+      case 82: // Rain Showers Heavy
+        if (day && !cloudy)  {return wi_day_showers_64x64;}
+        if (day && cloudy)   {return wi_showers_64x64;}
+        if (!day && !cloudy) {return wi_night_alt_showers_64x64;}
+        if (!day && cloudy)  {return wi_showers_64x64;}
+
+      case 71: // Snow Fall Slight
+      case 73: // Snow fall Moderate
+      case 75: // Snow Fall Heavy
+      case 77: // Snow Grains
+        if (day && !cloudy)  {return wi_day_snow_64x64;}
+        if (day && cloudy)   {return wi_snow_64x64;}
+        if (!day && !cloudy) {return wi_night_alt_snow_64x64;}
+        if (!day && cloudy)  {return wi_snow_64x64;}
+
+      case 85: // Snow Showers Slight
+      case 86: // Snow Showers Heavy
+        if (day && !cloudy)  {return wi_day_rain_mix_64x64;}
+        if (day && cloudy)   {return wi_rain_mix_64x64;}
+        if (!day && !cloudy) {return wi_night_alt_rain_mix_64x64;}
+        if (!day && cloudy)  {return wi_rain_mix_64x64;}
+
+      case 95: // Thunderstorm
+      case 96: // Thunderstorm Hail Slight
+      case 99: // Thunderstorm Hail Heavy
+        if (day && !cloudy)  {return wi_day_thunderstorm_64x64;}
+        if (day && cloudy)   {return wi_thunderstorm_64x64;}
+        if (!day && !cloudy) {return wi_night_alt_thunderstorm_64x64;}
+        if (!day && cloudy)  {return wi_thunderstorm_64x64;}
+
+      default:
+        Serial.println("WARNING: Unknown ID " + id);
+        return wi_na_64x64;
+      }
+} // end getForecastOMBitmap64
+
+const uint8_t *getCurrentConditionsOMBitmap196(const om_current_t &current,
+                                             const om_daily_t   &today)
+{
+    int id = current.weather_code;
+    bool cloudy = current.cloud_cover > 60.25; // partly cloudy / partly sunny
+    bool windy = (current.wind_speed_10m >= 35); // km/h
+    bool day = current.is_day;
+
+    switch (id)
+    {
+      case 0:  // Clear sky
+        if (day && !windy)  {return wi_day_sunny_196x196;}
+        if (day && windy)   {return wi_day_windy_196x196;}
+        if (!day && !windy) {return wi_stars_196x196;}
+        if (!day && windy)  {return wi_strong_wind_196x196;}
+
+      case 1:  // Mainly clear
+        if (day && !windy)  {return wi_day_sunny_overcast_196x196;}
+        if (day && windy)   {return wi_day_cloudy_gusts_196x196;}
+        if (!day && !windy) {return wi_night_alt_partly_cloudy_196x196;}
+        if (!day && windy)  {return wi_night_alt_cloudy_gusts_196x196;}
+
+      case 2:  // Partly cloudy
+        if (day && !windy)  {return wi_day_cloudy_196x196;}
+        if (day && windy)   {return wi_day_cloudy_gusts_196x196;}
+        if (!day && !windy) {return wi_night_alt_cloudy_196x196;}
+        if (!day && windy)  {return wi_night_alt_cloudy_gusts_196x196;}
+
+      case 3:  // Overcast
+        if (day && !windy)  {return wi_cloudy_196x196;}
+        if (day && windy)   {return wi_cloudy_gusts_196x196;}
+        if (!day && !windy) {return wi_cloudy_196x196;}
+        if (!day && windy)  {return wi_cloudy_gusts_196x196;}
+
+      case 45: // Fog
+        if (day)  {return wi_fog_196x196;}
+        if (!day)  {return wi_night_fog_196x196;}
+
+      case 48: // Depositing Rime wi_fog
+        if (day)  {return wi_fog_196x196;}
+        if (!day) {return wi_night_fog_196x196;}
+
+      case 51: // Drizzle Light
+      case 53: // Drizzle Moderate
+      case 55: // Drizzle Dense
+      case 56: // Freezing Drizzle Light
+      case 57: // Freezing Drizzle Dense intensity
+        if (day && !cloudy)  {return wi_day_sprinkle_196x196;}
+        if (day && cloudy)   {return wi_sprinkle_196x196;}
+        if (!day && !cloudy) {return wi_night_alt_sprinkle_196x196;}
+        if (!day && cloudy)  {return wi_sprinkle_196x196;}
+
+      case 61: // Rain Slight
+      case 63: // Rain Moderate
+      case 65: // Rain Heavy
+      case 66: // Freezing Rain Light
+      case 67: // Freezing Rain Heavy
+        if (day && !cloudy)  {return wi_day_rain_196x196;}
+        if (day && cloudy)   {return wi_rain_196x196;}
+        if (!day && !cloudy) {return wi_night_alt_rain_196x196;}
+        if (!day && cloudy)  {return wi_rain_196x196;}
+
+      case 80: // Rain Showers Slight
+      case 81: // Rain Showers Moderate
+      case 82: // Rain Showers Heavy
+        if (day && !cloudy)  {return wi_day_showers_196x196;}
+        if (day && cloudy)   {return wi_showers_196x196;}
+        if (!day && !cloudy) {return wi_night_alt_showers_196x196;}
+        if (!day && cloudy)  {return wi_showers_196x196;}
+
+      case 71: // Snow Fall Slight
+      case 73: // Snow fall Moderate
+      case 75: // Snow Fall Heavy
+      case 77: // Snow Grains
+        if (day && !cloudy)  {return wi_day_snow_196x196;}
+        if (day && cloudy)   {return wi_snow_196x196;}
+        if (!day && !cloudy) {return wi_night_alt_snow_196x196;}
+        if (!day && cloudy)  {return wi_snow_196x196;}
+
+      case 85: // Snow Showers Slight
+      case 86: // Snow Showers Heavy
+        if (day && !cloudy)  {return wi_day_rain_mix_196x196;}
+        if (day && cloudy)   {return wi_rain_mix_196x196;}
+        if (!day && !cloudy) {return wi_night_alt_rain_mix_196x196;}
+        if (!day && cloudy)  {return wi_rain_mix_196x196;}
+
+      case 95: // Thunderstorm
+      case 96: // Thunderstorm Hail Slight
+      case 99: // Thunderstorm Hail Heavy
+        if (day && !cloudy)  {return wi_day_thunderstorm_196x196;}
+        if (day && cloudy)   {return wi_thunderstorm_196x196;}
+        if (!day && !cloudy) {return wi_night_alt_thunderstorm_196x196;}
+        if (!day && cloudy)  {return wi_thunderstorm_196x196;}
+
+      default:
+        return wi_na_196x196;
+    }
+} // end getCurrentConditionsOMBitmap196
+

@@ -54,6 +54,9 @@ extern const char *TXT_AIR_POLLUTION;
 extern const char *TXT_VISIBILITY;
 extern const char *TXT_INDOOR_TEMPERATURE;
 extern const char *TXT_INDOOR_HUMIDITY;
+extern const char *TXT_SUN_DURATION;
+extern const char *TXT_PRECIPITATION_DURATION;
+extern const char *TXT_PRECIPITATION_SUM;
 
 // UV INDEX
 extern const char *TXT_UV_LOW;

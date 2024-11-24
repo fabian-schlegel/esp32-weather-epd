@@ -1308,3 +1308,538 @@ void drawError(const uint8_t *bitmap_196x196,
   return;
 } // end drawError
 
+void drawCurrentConditionsOpenMeteo(const om_current_t &current,
+                           const om_daily_t &today,
+                           float inTemp, float inHumidity)
+{
+  String dataStr, unitStr;
+  // current weather icon
+  display.drawInvertedBitmap(0, 0,
+                             getCurrentConditionsOMBitmap196(current, today),
+                             196, 196, GxEPD_BLACK);
+
+  // current temp
+  dataStr = String(static_cast<int>(round(current.temperature_2m)));
+  unitStr = TXT_UNITS_TEMP_CELSIUS;
+  // FONT_**_temperature fonts only have the character set used for displaying
+  // temperature (0123456789.-\xB0)
+  display.setFont(&FONT_48pt8b_temperature);
+#if defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+    drawString(196 + 164 / 2 - 20, 196 / 2 + 69 / 2, dataStr, CENTER);
+#elif defined(DISP_BW_V1)
+    drawString(156 + 164 / 2 - 20, 196 / 2 + 69 / 2, dataStr, CENTER);
+#endif
+  display.setFont(&FONT_14pt8b);
+  drawString(display.getCursorX(), 196 / 2 - 69 / 2 + 20, unitStr, LEFT);
+
+  // current feels like
+  dataStr = String(TXT_FEELS_LIKE) + ' '
+            + String(static_cast<int>(round(current.apparent_temperature)))
+            + '\xB0';
+  display.setFont(&FONT_12pt8b);
+#if defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+  drawString(196 + 164 / 2, 98 + 69 / 2 + 12 + 17, dataStr, CENTER);
+#elif defined(DISP_BW_V1)
+  drawString(156 + 164 / 2, 98 + 69 / 2 + 12 + 17, dataStr, CENTER);
+#endif
+  // line dividing top and bottom display areas
+  // display.drawLine(0, 196, DISP_WIDTH - 1, 196, GxEPD_BLACK);
+
+  // current weather data icons
+  display.drawInvertedBitmap(0, 204 + (48 + 8) * 0,
+                             wi_day_sunny_48x48, 48, 48, GxEPD_BLACK);
+  display.drawInvertedBitmap(0, 204 + (48 + 8) * 1,
+                             wi_strong_wind_48x48, 48, 48, GxEPD_BLACK);
+  display.drawInvertedBitmap(0, 204 + (48 + 8) * 2,
+                             wi_rain_48x48, 48, 48, GxEPD_BLACK);
+#if defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+  display.drawInvertedBitmap(0, 204 + (48 + 8) * 4,
+                             house_thermometer_48x48, 48, 48, GxEPD_BLACK);
+#endif
+  display.drawInvertedBitmap(170, 204 + (48 + 8) * 0,
+                             wi_rain_48x48, 48, 48, GxEPD_BLACK);
+  display.drawInvertedBitmap(170, 204 + (48 + 8) * 1,
+                             wi_humidity_48x48, 48, 48, GxEPD_BLACK);
+  display.drawInvertedBitmap(170, 204 + (48 + 8) * 2,
+                             wi_barometer_48x48, 48, 48, GxEPD_BLACK);
+#if defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+  display.drawInvertedBitmap(170, 204 + (48 + 8) * 4,
+                             house_humidity_48x48, 48, 48, GxEPD_BLACK);
+#endif
+
+  // current weather data labels
+  display.setFont(&FONT_7pt8b);
+  drawString(48, 204 + 10 + (48 + 8) * 0, TXT_SUN_DURATION, LEFT);
+  drawString(48, 204 + 10 + (48 + 8) * 1, TXT_WIND, LEFT);
+  drawString(48, 204 + 10 + (48 + 8) * 2, TXT_PRECIPITATION_DURATION, LEFT);
+#if defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+  drawString(48, 204 + 10 + (48 + 8) * 4, TXT_INDOOR_TEMPERATURE, LEFT);
+#endif
+  drawString(170 + 48, 204 + 10 + (48 + 8) * 0, TXT_PRECIPITATION_SUM, LEFT);
+  drawString(170 + 48, 204 + 10 + (48 + 8) * 1, TXT_HUMIDITY, LEFT);
+  drawString(170 + 48, 204 + 10 + (48 + 8) * 2, TXT_PRESSURE, LEFT);
+#if defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+  drawString(170 + 48, 204 + 10 + (48 + 8) * 4, TXT_INDOOR_HUMIDITY, LEFT);
+#endif
+
+  // sunshine hours
+  display.setFont(&FONT_12pt8b);
+  char dataBuffer[18] = {}; // big enough to accommodate "24/24"
+  float sunshineHours = today.sunshine_duration / 3600.0f;
+  float daylightHours = today.daylight_duration / 3600.0f;
+  sprintf(dataBuffer, "%.1f/%.1f", sunshineHours, daylightHours);
+  drawString(48, 204 + 17 / 2 + (48 + 8) * 0 + 48 / 2, dataBuffer, LEFT);
+  display.setFont(&FONT_8pt8b);
+  drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 0 + 48 / 2, "h", LEFT);
+  display.setFont(&FONT_12pt8b);
+
+  // wind
+#ifdef WIND_INDICATOR_ARROW
+  display.drawInvertedBitmap(48, 204 + 24 / 2 + (48 + 8) * 1,
+                             getWindBitmap24(current.wind_direction_10m),
+                             24, 24, GxEPD_BLACK);
+#endif
+  dataStr = String(static_cast<int>(round(
+                   meterspersecond_to_kilometersperhour(current.wind_speed_10m))));
+  unitStr = TXT_UNITS_SPEED_KILOMETERSPERHOUR;
+
+#ifdef WIND_INDICATOR_ARROW
+  drawString(48 + 24, 204 + 17 / 2 + (48 + 8) * 1 + 48 / 2, dataStr, LEFT);
+#else
+  drawString(48     , 204 + 17 / 2 + (48 + 8) * 1 + 48 / 2, dataStr, LEFT);
+#endif
+  display.setFont(&FONT_8pt8b);
+  drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 1 + 48 / 2,
+             unitStr, LEFT);
+
+#if defined(WIND_INDICATOR_NUMBER)
+  dataStr = String(current.wind_deg) + "\xB0";
+  display.setFont(&FONT_12pt8b);
+  drawString(display.getCursorX() + 6, 204 + 17 / 2 + (48 + 8) * 1 + 48 / 2,
+             dataStr, LEFT);
+#endif
+#if defined(WIND_INDICATOR_CPN_CARDINAL)                \
+ || defined(WIND_INDICATOR_CPN_INTERCARDINAL)           \
+ || defined(WIND_INDICATOR_CPN_SECONDARY_INTERCARDINAL) \
+ || defined(WIND_INDICATOR_CPN_TERTIARY_INTERCARDINAL)
+  dataStr = getCompassPointNotation(current.wind_deg);
+  display.setFont(&FONT_12pt8b);
+  drawString(display.getCursorX() + 6, 204 + 17 / 2 + (48 + 8) * 1 + 48 / 2,
+             dataStr, LEFT);
+#endif
+
+  // precipitation sum
+  display.setFont(&FONT_12pt8b);
+  memset(dataBuffer, '\0', sizeof(dataBuffer));
+  sprintf(dataBuffer, "%.1f", today.precipitation_sum);
+  drawString(48, 204 + 17 / 2 + (48 + 8) * 2 + 48 / 2, dataBuffer, LEFT);
+  display.setFont(&FONT_8pt8b);
+  drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 2 + 48 / 2, "mm", LEFT);
+
+#if defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+
+  // indoor temperature
+  display.setFont(&FONT_12pt8b);
+  if (!std::isnan(inTemp))
+  {
+    dataStr = String(static_cast<int>(round(inTemp)));
+  }
+  else
+  {
+    dataStr = "--";
+  }
+#if defined(UNITS_TEMP_CELSIUS) || defined(UNITS_TEMP_FAHRENHEIT)
+  dataStr += "\xB0";
+#endif
+  drawString(48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT);
+#endif // defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+
+  // precipitation hours
+  display.setFont(&FONT_12pt8b);
+  memset(dataBuffer, '\0', sizeof(dataBuffer));
+  sprintf(dataBuffer, "%.1f", today.precipitation_hours);
+  drawString(170 + 48, 204 + 17 / 2 + (48 + 8) * 0 + 48 / 2, dataBuffer, LEFT);
+  display.setFont(&FONT_8pt8b);
+  drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 0 + 48 / 2, "h", LEFT);
+
+  // humidity
+  dataStr = String(current.relative_humidity_2m);
+  display.setFont(&FONT_12pt8b);
+  drawString(170 + 48, 204 + 17 / 2 + (48 + 8) * 1 + 48 / 2, dataStr, LEFT);
+  display.setFont(&FONT_8pt8b);
+  drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 1 + 48 / 2,
+             "%", LEFT);
+
+  // pressure
+  dataStr = String(static_cast<int>(round(current.surface_pressure)));
+  unitStr = TXT_UNITS_PRES_HECTOPASCALS;
+  display.setFont(&FONT_12pt8b);
+  drawString(170 + 48, 204 + 17 / 2 + (48 + 8) * 2 + 48 / 2, dataStr, LEFT);
+  display.setFont(&FONT_8pt8b);
+  drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 2 + 48 / 2,
+             unitStr, LEFT);
+
+#if defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+
+  // indoor humidity
+  display.setFont(&FONT_12pt8b);
+  if (!std::isnan(inHumidity))
+  {
+    dataStr = String(static_cast<int>(round(inHumidity)));
+  }
+  else
+  {
+    dataStr = "--";
+  }
+  drawString(170 + 48, 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2, dataStr, LEFT);
+  display.setFont(&FONT_8pt8b);
+  drawString(display.getCursorX(), 204 + 17 / 2 + (48 + 8) * 4 + 48 / 2,
+             "%", LEFT);
+#endif // defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+  return;
+} // end drawCurrentConditions
+
+void drawForecastOpenMeteo(om_daily_t *const daily, tm timeInfo)
+{
+  // 5 day, forecast
+  String hiStr, loStr;
+  for (int i = 0; i < 5; ++i)
+  {
+#if defined(DISP_BW_V2) || defined(DISP_3C_B) || defined(DISP_7C_F)
+    int x = 398 + (i * 82);
+#elif defined(DISP_BW_V1)
+    int x = 318 + (i * 64);
+#endif
+    // icons
+    display.drawInvertedBitmap(x, 98 + 69 / 2 - 32 - 6,
+                               getForecastOMBitmap64(daily[i]),
+                               64, 64, GxEPD_BLACK);
+    // day of week label
+    display.setFont(&FONT_11pt8b);
+    char dayBuffer[8] = {};
+    _strftime(dayBuffer, sizeof(dayBuffer), "%a", &timeInfo); // abbrv'd day
+    drawString(x + 31 - 2, 98 + 69 / 2 - 32 - 26 - 6 + 16, dayBuffer, CENTER);
+    timeInfo.tm_wday = (timeInfo.tm_wday + 1) % 7; // increment to next day
+
+    // high | low
+    display.setFont(&FONT_8pt8b);
+    drawString(x + 31, 98 + 69 / 2 + 38 - 6 + 12, "|", CENTER);
+  hiStr = String(static_cast<int>(round(daily[i].temperature_2m_max)
+                 )) + "\xB0";
+  loStr = String(static_cast<int>(round(daily[i].temperature_2m_min)
+                 )) + "\xB0";
+    drawString(x + 31 - 4, 98 + 69 / 2 + 38 - 6 + 12, hiStr, RIGHT);
+    drawString(x + 31 + 5, 98 + 69 / 2 + 38 - 6 + 12, loStr, LEFT);
+  }
+
+  return;
+} // end drawForecast
+
+void drawOutlookGraphOpenMeteo(om_hourly_t *const hourly, tm timeInfo)
+{
+
+  const int xPos0 = 350;
+  int xPos1 = DISP_WIDTH;
+  const int yPos0 = 216;
+  const int yPos1 = DISP_HEIGHT - 46;
+
+  // calculate y max/min and intervals
+  int yMajorTicks = 5;
+#ifdef UNITS_TEMP_KELVIN
+  float tempMin = hourly[0].temp;
+#endif
+#ifdef UNITS_TEMP_CELSIUS
+  float tempMin = hourly[0].temperature_2m;
+#endif
+#ifdef UNITS_TEMP_FAHRENHEIT
+  float tempMin = kelvin_to_fahrenheit(hourly[0].temp);
+#endif
+  float tempMax = tempMin;
+#ifdef UNITS_HOURLY_PRECIP_POP
+  float precipMax = hourly[0].pop;
+#else
+  float precipMax = hourly[0].precipitation;
+#endif
+  int yTempMajorTicks = 5;
+  float newTemp = 0;
+  for (int i = 1; i < HOURLY_GRAPH_MAX; ++i)
+  {
+#ifdef UNITS_TEMP_KELVIN
+    newTemp = hourly[i].temp;
+#endif
+#ifdef UNITS_TEMP_CELSIUS
+    newTemp = hourly[i].temperature_2m;
+#endif
+#ifdef UNITS_TEMP_FAHRENHEIT
+    newTemp = kelvin_to_fahrenheit(hourly[i].temp);
+#endif
+    tempMin = std::min(tempMin, newTemp);
+    tempMax = std::max(tempMax, newTemp);
+#ifdef UNITS_HOURLY_PRECIP_POP
+    precipMax = std::max<float>(precipMax, hourly[i].pop);
+#else
+    precipMax = std::max<float>(
+                precipMax, hourly[i].precipitation);
+#endif
+  }
+  int tempBoundMin = static_cast<int>(tempMin - 1)
+                      - modulo(static_cast<int>(tempMin - 1), yTempMajorTicks);
+  int tempBoundMax = static_cast<int>(tempMax + 1)
+   + (yTempMajorTicks - modulo(static_cast<int>(tempMax + 1), yTempMajorTicks));
+
+  // while we have to many major ticks then increase the step
+  while ((tempBoundMax - tempBoundMin) / yTempMajorTicks > yMajorTicks)
+  {
+    yTempMajorTicks += 5;
+    tempBoundMin = static_cast<int>(tempMin - 1)
+                      - modulo(static_cast<int>(tempMin - 1), yTempMajorTicks);
+    tempBoundMax = static_cast<int>(tempMax + 1) + (yTempMajorTicks
+                      - modulo(static_cast<int>(tempMax + 1), yTempMajorTicks));
+  }
+  // while we have not enough major ticks add to either bound
+  while ((tempBoundMax - tempBoundMin) / yTempMajorTicks < yMajorTicks)
+  {
+    // add to whatever bound is closer to the actual min/max
+    if (tempMin - tempBoundMin <= tempBoundMax - tempMax)
+    {
+      tempBoundMin -= yTempMajorTicks;
+    }
+    else
+    {
+      tempBoundMax += yTempMajorTicks;
+    }
+  }
+
+#ifdef UNITS_HOURLY_PRECIP_POP
+  xPos1 = DISP_WIDTH - 23;
+  float precipBoundMax;
+  if (precipMax > 0)
+  {
+    precipBoundMax = 100.0f;
+  }
+  else
+  {
+    precipBoundMax = 0.0f;
+  }
+#else
+#ifdef UNITS_HOURLY_PRECIP_MILLIMETERS
+  xPos1 = DISP_WIDTH - 24;
+  float precipBoundMax = std::ceil(precipMax); // Round up to nearest mm
+  int yPrecipMajorTickDecimals = (precipBoundMax < 10);
+#endif
+#ifdef UNITS_HOURLY_PRECIP_CENTIMETERS
+  xPos1 = DISP_WIDTH - 25;
+  precipMax = millimeters_to_centimeters(precipMax);
+  // Round up to nearest 0.1 cm
+  float precipBoundMax = std::ceil(precipMax * 10) / 10.0f;
+  int yPrecipMajorTickDecimals;
+  if (precipBoundMax < 1)
+  {
+    yPrecipMajorTickDecimals = 2;
+    if (precipBoundMax > 0)
+    {
+      xPos1 -= 6; // needs extra room
+    }
+  }
+  else if (precipBoundMax < 10)
+  {
+    yPrecipMajorTickDecimals = 1;
+  }
+  else
+  {
+    yPrecipMajorTickDecimals = 0;
+  }
+#endif
+#ifdef UNITS_HOURLY_PRECIP_INCHES
+  xPos1 = DISP_WIDTH - 25;
+  precipMax = millimeters_to_inches(precipMax);
+  // Round up to nearest 0.1 inch
+  float precipBoundMax = std::ceil(precipMax * 10) / 10.0f;
+  int yPrecipMajorTickDecimals;
+  if (precipBoundMax < 1)
+  {
+    yPrecipMajorTickDecimals = 2;
+  }
+  else if (precipBoundMax < 10)
+  {
+    yPrecipMajorTickDecimals = 1;
+  }
+  else
+  {
+    yPrecipMajorTickDecimals = 0;
+  }
+#endif
+  float yPrecipMajorTickValue = precipBoundMax / yMajorTicks;
+  float precipRoundingMultiplier = std::pow(10.f, yPrecipMajorTickDecimals);
+#endif
+
+  if (precipBoundMax > 0)
+  { // fill need extra room for labels
+    xPos1 -= 23;
+  }
+
+  // draw x axis
+  display.drawLine(xPos0, yPos1    , xPos1, yPos1    , GxEPD_BLACK);
+  display.drawLine(xPos0, yPos1 - 1, xPos1, yPos1 - 1, GxEPD_BLACK);
+
+  // draw y axis
+  float yInterval = (yPos1 - yPos0) / static_cast<float>(yMajorTicks);
+  for (int i = 0; i <= yMajorTicks; ++i)
+  {
+    String dataStr;
+    int yTick = static_cast<int>(yPos0 + (i * yInterval));
+    display.setFont(&FONT_8pt8b);
+    // Temperature
+    dataStr = String(tempBoundMax - (i * yTempMajorTicks));
+#if defined(UNITS_TEMP_CELSIUS) || defined(UNITS_TEMP_FAHRENHEIT)
+    dataStr += "\260";
+#endif
+    drawString(xPos0 - 8, yTick + 4, dataStr, RIGHT, ACCENT_COLOR);
+
+    if (precipBoundMax > 0)
+    { // don't labels if precip is 0
+#ifdef UNITS_HOURLY_PRECIP_POP
+      // PoP
+      dataStr = String(100 - (i * 20));
+      String precipUnit = "%";
+#else
+      // Precipitation volume
+      float precipTick = precipBoundMax - (i * yPrecipMajorTickValue);
+      precipTick = std::round(precipTick * precipRoundingMultiplier)
+                              / precipRoundingMultiplier;
+      dataStr = String(precipTick, yPrecipMajorTickDecimals);
+#ifdef UNITS_HOURLY_PRECIP_MILLIMETERS
+      String precipUnit = String(" ") + TXT_UNITS_PRECIP_MILLIMETERS;
+#endif
+#ifdef UNITS_HOURLY_PRECIP_CENTIMETERS
+      String precipUnit = String(" ") + TXT_UNITS_PRECIP_CENTIMETERS;
+#endif
+#ifdef UNITS_HOURLY_PRECIP_INCHES
+      String precipUnit = String(" ") + TXT_UNITS_PRECIP_INCHES;
+#endif
+#endif
+
+      drawString(xPos1 + 8, yTick + 4, dataStr, LEFT);
+      display.setFont(&FONT_5pt8b);
+      drawString(display.getCursorX(), yTick + 4, precipUnit, LEFT);
+    } // end draw labels if precip is >0
+
+    // draw dotted line
+    if (i < yMajorTicks)
+    {
+      for (int x = xPos0; x <= xPos1 + 1; x += 3)
+      {
+        display.drawPixel(x, yTick + (yTick % 2), GxEPD_BLACK);
+      }
+    }
+  }
+
+  int xMaxTicks = 8;
+  int hourInterval = static_cast<int>(ceil(HOURLY_GRAPH_MAX
+                                           / static_cast<float>(xMaxTicks)));
+  float xInterval = (xPos1 - xPos0 - 1) / static_cast<float>(HOURLY_GRAPH_MAX);
+  display.setFont(&FONT_8pt8b);
+  for (int i = 0; i < HOURLY_GRAPH_MAX; ++i)
+  {
+    int xTick = static_cast<int>(xPos0 + (i * xInterval));
+    int x0_t, x1_t, y0_t, y1_t;
+    float yPxPerUnit;
+
+    if (i > 0)
+    {
+      // temperature
+      x0_t = static_cast<int>(std::round(xPos0 + ((i - 1) * xInterval)
+                                    + (0.5 * xInterval) ));
+      x1_t = static_cast<int>(std::round(xPos0 + (i * xInterval)
+                                    + (0.5 * xInterval) ));
+      yPxPerUnit = (yPos1 - yPos0)
+                   / static_cast<float>(tempBoundMax - tempBoundMin);
+#ifdef UNITS_TEMP_KELVIN
+      y0_t = static_cast<int>(std::round(
+                yPos1 - (yPxPerUnit * ((hourly[i - 1].temp) - tempBoundMin)) ));
+      y1_t = static_cast<int>(std::round(
+                yPos1 - (yPxPerUnit * ((hourly[i    ].temp) - tempBoundMin)) ));
+#endif
+#ifdef UNITS_TEMP_CELSIUS
+      y0_t = static_cast<int>(std::round(
+                yPos1 - (yPxPerUnit * (hourly[i - 1].temperature_2m
+                         - tempBoundMin)) ));
+      y1_t = static_cast<int>(std::round(
+                yPos1 - (yPxPerUnit * (hourly[i    ].temperature_2m
+                         - tempBoundMin)) ));
+#endif
+#ifdef UNITS_TEMP_FAHRENHEIT
+      y0_t = static_cast<int>(std::round(
+                yPos1 - (yPxPerUnit * (kelvin_to_fahrenheit(hourly[i - 1].temp)
+                         - tempBoundMin)) ));
+      y1_t = static_cast<int>(std::round(
+                yPos1 - (yPxPerUnit * (kelvin_to_fahrenheit(hourly[i    ].temp)
+                         - tempBoundMin)) ));
+#endif
+
+      // graph temperature
+      display.drawLine(x0_t    , y0_t    , x1_t    , y1_t    , ACCENT_COLOR);
+      display.drawLine(x0_t    , y0_t + 1, x1_t    , y1_t + 1, ACCENT_COLOR);
+      display.drawLine(x0_t - 1, y0_t    , x1_t - 1, y1_t    , ACCENT_COLOR);
+    }
+
+#ifdef UNITS_HOURLY_PRECIP_POP
+    float precipVal = hourly[i].pop * 100;
+#else
+    float precipVal = hourly[i].precipitation;
+#ifdef UNITS_HOURLY_PRECIP_CENTIMETERS
+    precipVal = millimeters_to_centimeters(precipVal);
+#endif
+#ifdef UNITS_HOURLY_PRECIP_INCHES
+    precipVal = millimeters_to_inches(precipVal);
+#endif
+#endif
+
+    x0_t = static_cast<int>(std::round( xPos0 + 1 + (i * xInterval)));
+    x1_t = static_cast<int>(std::round( xPos0 + 1 + ((i + 1) * xInterval) ));
+    yPxPerUnit = (yPos1 - yPos0) / precipBoundMax;
+    y0_t = static_cast<int>(std::round( yPos1 - (yPxPerUnit * (precipVal)) ));
+    y1_t = yPos1;
+
+    // graph Precipitation
+    for (int y = y1_t - 1; y > y0_t; y -= 2)
+    {
+      for (int x = x0_t + (x0_t % 2); x < x1_t; x += 2)
+      {
+        display.drawPixel(x, y, GxEPD_BLACK);
+      }
+    }
+
+    if ((i % hourInterval) == 0)
+    {
+      // draw x tick marks
+      display.drawLine(xTick    , yPos1 + 1, xTick    , yPos1 + 4, GxEPD_BLACK);
+      display.drawLine(xTick + 1, yPos1 + 1, xTick + 1, yPos1 + 4, GxEPD_BLACK);
+      // draw x axis labels
+      char timeBuffer[12] = {}; // big enough to accommodate "hh:mm:ss am"
+      time_t ts = hourly[i].dt;
+      tm *timeInfo = localtime(&ts);
+      _strftime(timeBuffer, sizeof(timeBuffer), HOUR_FORMAT, timeInfo);
+      drawString(xTick, yPos1 + 1 + 12 + 4 + 3, timeBuffer, CENTER);
+    }
+
+  }
+
+  // draw the last tick mark
+  if ((HOURLY_GRAPH_MAX % hourInterval) == 0)
+  {
+    int xTick = static_cast<int>(
+                std::round(xPos0 + (HOURLY_GRAPH_MAX * xInterval)));
+    // draw x tick marks
+    display.drawLine(xTick    , yPos1 + 1, xTick    , yPos1 + 4, GxEPD_BLACK);
+    display.drawLine(xTick + 1, yPos1 + 1, xTick + 1, yPos1 + 4, GxEPD_BLACK);
+    // draw x axis labels
+    char timeBuffer[12] = {}; // big enough to accommodate "hh:mm:ss am"
+    time_t ts = hourly[HOURLY_GRAPH_MAX - 1].dt + 3600;
+    tm *timeInfo = localtime(&ts);
+    _strftime(timeBuffer, sizeof(timeBuffer), HOUR_FORMAT, timeInfo);
+    drawString(xTick, yPos1 + 1 + 12 + 4 + 3, timeBuffer, CENTER);
+  }
+
+  return;
+} // end drawOutlookGraph

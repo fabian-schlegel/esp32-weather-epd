@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <Arduino.h>
+#include <om_api_response.h>
 #include <time.h>
 #include "api_response.h"
 #include "config.h"
@@ -83,5 +84,10 @@ void drawStatusBar(const String &statusStr, const String &refreshTimeStr,
                    int rssi, uint32_t batVoltage);
 void drawError(const uint8_t *bitmap_196x196,
                const String &errMsgLn1, const String &errMsgLn2="");
+void drawCurrentConditionsOpenMeteo(const om_current_t &current,
+                           const om_daily_t &today,
+                           float inTemp, float inHumidity);
+void drawForecastOpenMeteo(om_daily_t *const daily, tm timeInfo);
+void drawOutlookGraphOpenMeteo(om_hourly_t *const hourly, tm timeInfo);
 
 #endif

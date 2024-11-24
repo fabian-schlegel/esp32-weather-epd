@@ -19,8 +19,6 @@ int getOM(WiFiClientSecure &client, om_resp_t &r)
     const String uri = "/v1/dwd-icon?latitude=" + LAT + "&longitude=" + LON
                        + "&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,precipitation,weather_code,&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,daylight_duration,sunshine_duration,precipitation_sum,precipitation_hours,wind_speed_10m_max,wind_direction_10m_dominant&forecast_days=5&forecast_hours=24&timezone=Europe%2FBerlin";
 
-    // This string is printed to terminal to help with debugging. The API key is
-    // censored to reduce the risk of users exposing their key.
     String sanitizedUri = OM_ENDPOINT + uri;
 
     Serial.print("Attempting HTTP request");
@@ -39,11 +37,11 @@ int getOM(WiFiClientSecure &client, om_resp_t &r)
         HTTPClient http;
         http.setConnectTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
         http.setTimeout(HTTP_CLIENT_TCP_TIMEOUT); // default 5000ms
-        http.begin(client, OWM_ENDPOINT, OM_PORT, uri);
+        http.begin(client, OM_ENDPOINT, OM_PORT, uri);
         httpResponse = http.GET();
         if (httpResponse == HTTP_CODE_OK)
         {
-            jsonErr = deserializeOpenMeteo(http.getStream(), r);
+            jsonErr = deserializeOpenMeteo(http.getString(), r);
             if (jsonErr)
             {
                 // -256 offset distinguishes these errors from httpClient errors
@@ -60,14 +58,21 @@ int getOM(WiFiClientSecure &client, om_resp_t &r)
     return httpResponse;
 }
 
-DeserializationError deserializeOpenMeteo(WiFiClient &json,
+DeserializationError deserializeOpenMeteo(String json,
                                         om_resp_t &r)
 {
     int i;
 
+    Serial.println(json);
     JsonDocument doc;
-    ReadLoggingStream loggingStream(json, Serial);
-    const DeserializationError error = deserializeJson(doc, loggingStream);
+    const DeserializationError error = deserializeJson(doc, json);
+
+#if DEBUG_LEVEL >= 1
+    Serial.println("[debug] doc.overflowed() : " + String(doc.overflowed()));
+#endif
+#if DEBUG_LEVEL >= 2
+    serializeJsonPretty(doc, Serial);
+#endif
 
     if (error) {
         return error;

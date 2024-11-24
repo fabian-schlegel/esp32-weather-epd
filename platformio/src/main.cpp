@@ -329,11 +329,10 @@ void setup()
   initDisplay();
   do
   {
-    //drawCurrentConditions(owm_onecall.current, owm_onecall.daily[0],
-    //                      owm_air_pollution, inTemp, inHumidity);
-    //drawForecast(owm_onecall.daily, timeInfo);
+    drawCurrentConditionsOpenMeteo(om_resp.current, om_resp.daily[0], inTemp, inHumidity);
+    drawForecastOpenMeteo(om_resp.daily, timeInfo);
     drawLocationDate(CITY_STRING, dateStr);
-    //drawOutlookGraph(owm_onecall.hourly, timeInfo);
+    drawOutlookGraphOpenMeteo(om_resp.hourly, timeInfo);
 #if DISPLAY_ALERTS
     //drawAlerts(owm_onecall.alerts, CITY_STRING, dateStr);
 #endif

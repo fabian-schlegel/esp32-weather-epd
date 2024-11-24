@@ -89,6 +89,9 @@ const char *TXT_AIR_POLLUTION      = "\xD5husaaste";
 const char *TXT_VISIBILITY         = "N\xE4htavus";
 const char *TXT_INDOOR_TEMPERATURE = "Temperatuur";
 const char *TXT_INDOOR_HUMIDITY    = "\xD5huniiskus";
+const char *TXT_SUN_DURATION       = "TODO";
+const char *TXT_PRECIPITATION_DURATION  = "TODO";
+const char *TXT_PRECIPITATION_SUM  = "TODO";
 
 // UV INDEX
 const char *TXT_UV_LOW       = "Madal";

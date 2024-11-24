@@ -89,6 +89,9 @@ const char *TXT_AIR_POLLUTION      = "Luchtvervuiling";
 const char *TXT_VISIBILITY         = "Zichtbaarheid";
 const char *TXT_INDOOR_TEMPERATURE = "Temperatuur";
 const char *TXT_INDOOR_HUMIDITY    = "Vochtigheid";
+const char *TXT_SUN_DURATION       = "TODO";
+const char *TXT_PRECIPITATION_DURATION  = "TODO";
+const char *TXT_PRECIPITATION_SUM  = "TODO";
 
 // UV INDEX
 const char *TXT_UV_LOW       = "Laag";

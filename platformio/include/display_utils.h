@@ -18,6 +18,7 @@
 #ifndef __DISPLAY_UTILS_H__
 #define __DISPLAY_UTILS_H__
 
+#include <om_api_response.h>
 #include <vector>
 #include <time.h>
 #include "api_response.h"
@@ -76,6 +77,8 @@ const char *getHttpResponsePhrase(int code);
 const char *getWifiStatusPhrase(wl_status_t status);
 void printHeapUsage();
 void disableBuiltinLED();
-
+const uint8_t *getForecastOMBitmap64(const om_daily_t &daily);
+const uint8_t *getCurrentConditionsOMBitmap196(const om_current_t &current,
+                                             const om_daily_t   &today);
 #endif
 

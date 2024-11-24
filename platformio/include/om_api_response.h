@@ -9,6 +9,7 @@
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
+#include "config.h"
 
 #define OM_NUM_HOURLY        24
 #define OM_NUM_DAILY          7
@@ -92,7 +93,7 @@ typedef struct om_resp
     om_daily_t     daily[OM_NUM_DAILY];
 } om_resp_t;
 
-DeserializationError deserializeOpenMeteo(WiFiClient &json,
+DeserializationError deserializeOpenMeteo(String json,
                                         om_resp_t &r);
 
 #ifdef USE_HTTP

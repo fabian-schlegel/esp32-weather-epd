@@ -90,6 +90,9 @@ const char *TXT_AIR_POLLUTION      = "Luftverschmutzung";
 const char *TXT_VISIBILITY         = "Sichtweite";
 const char *TXT_INDOOR_TEMPERATURE = "Temperatur";
 const char *TXT_INDOOR_HUMIDITY    = "Feuchtigkeit";
+const char *TXT_SUN_DURATION       = "Sonnenschein";
+const char *TXT_PRECIPITATION_DURATION  = "Niederschlag";
+const char *TXT_PRECIPITATION_SUM  = "Niederschlag";
 
 // UV INDEX
 const char *TXT_UV_LOW       = "Schwach";
