@@ -67,7 +67,7 @@
 //   Italiano (Italia)               it_IT
 //   Dutch (Belgium)                 nl_BE
 //   Portuguese (Brazil)             pt_BR
-#define LOCALE en_US
+#define LOCALE de_DE
 
 // UNITS
 // Define exactly one macro for each measurement type below.
@@ -76,26 +76,26 @@
 //   Metric   : Celsius
 //   Imperial : Fahrenheit
 // #define UNITS_TEMP_KELVIN
-// #define UNITS_TEMP_CELSIUS
-#define UNITS_TEMP_FAHRENHEIT
+#define UNITS_TEMP_CELSIUS
+// #define UNITS_TEMP_FAHRENHEIT
 
 // UNITS - WIND SPEED
 //   Metric   : Kilometers per Hour
 //   Imperial : Miles per Hour
 // #define UNITS_SPEED_METERSPERSECOND
 // #define UNITS_SPEED_FEETPERSECOND
-// #define UNITS_SPEED_KILOMETERSPERHOUR
-#define UNITS_SPEED_MILESPERHOUR
+#define UNITS_SPEED_KILOMETERSPERHOUR
+// #define UNITS_SPEED_MILESPERHOUR
 // #define UNITS_SPEED_KNOTS
 // #define UNITS_SPEED_BEAUFORT
 
 // UNITS - PRESSURE
 //   Metric   : Millibars
 //   Imperial : Inches of Mercury
-// #define UNITS_PRES_HECTOPASCALS
+#define UNITS_PRES_HECTOPASCALS
 // #define UNITS_PRES_PASCALS
 // #define UNITS_PRES_MILLIMETERSOFMERCURY
-#define UNITS_PRES_INCHESOFMERCURY
+// #define UNITS_PRES_INCHESOFMERCURY
 // #define UNITS_PRES_MILLIBARS
 // #define UNITS_PRES_ATMOSPHERES
 // #define UNITS_PRES_GRAMSPERSQUARECENTIMETER
@@ -104,16 +104,16 @@
 // UNITS - VISIBILITY DISTANCE
 //   Metric   : Kilometers
 //   Imperial : Miles
-// #define UNITS_DIST_KILOMETERS
-#define UNITS_DIST_MILES
+#define UNITS_DIST_KILOMETERS
+// #define UNITS_DIST_MILES
 
 // UNITS - PRECIPITATION (HOURLY)
 // Measure of precipitation.
 // This can either be Probability of Precipitation (PoP) or hourly volume.
 //   Metric   : Millimeters
 //   Imperial : Inches
-#define UNITS_HOURLY_PRECIP_POP
-// #define UNITS_HOURLY_PRECIP_MILLIMETERS
+// #define UNITS_HOURLY_PRECIP_POP
+#define UNITS_HOURLY_PRECIP_MILLIMETERS
 // #define UNITS_HOURLY_PRECIP_CENTIMETERS
 // #define UNITS_HOURLY_PRECIP_INCHES
 
@@ -123,9 +123,9 @@
 //   Metric   : Millimeters
 //   Imperial : Inches
 // #define UNITS_DAILY_PRECIP_POP
-// #define UNITS_DAILY_PRECIP_MILLIMETERS
+#define UNITS_DAILY_PRECIP_MILLIMETERS
 // #define UNITS_DAILY_PRECIP_CENTIMETERS
-#define UNITS_DAILY_PRECIP_INCHES
+// #define UNITS_DAILY_PRECIP_INCHES
 
 // Hypertext Transfer Protocol (HTTP)
 // HTTP
@@ -146,9 +146,9 @@
 //   The current certificate for api.openweathermap.org is valid until
 //   2030-12-31 23:59:59.
 // (uncomment exactly one)
-// #define USE_HTTP
+#define USE_HTTP
 // #define USE_HTTPS_NO_CERT_VERIF
-#define USE_HTTPS_WITH_CERT_VERIF
+// #define USE_HTTPS_WITH_CERT_VERIF
 
 // WIND DIRECTION INDICATOR
 // Choose whether the wind direction indicator should be an arrow, number, or
