@@ -17,7 +17,7 @@ int getOM(WiFiClientSecure &client, om_resp_t &r)
     bool rxSuccess = false;
     DeserializationError jsonErr = {};
     const String uri = "/v1/dwd-icon?latitude=" + LAT + "&longitude=" + LON
-                       + "&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,precipitation,weather_code,&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,daylight_duration,sunshine_duration,precipitation_sum,precipitation_hours,wind_speed_10m_max,wind_direction_10m_dominant&forecast_days=5&forecast_hours=24&timezone=Europe%2FBerlin";
+                       + "&current=is_day,temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,precipitation,weather_code,&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,daylight_duration,sunshine_duration,precipitation_sum,precipitation_hours,wind_speed_10m_max,wind_direction_10m_dominant&forecast_days=5&forecast_hours=24&timezone=Europe%2FBerlin";
 
     String sanitizedUri = OM_ENDPOINT + uri;
 
@@ -89,6 +89,7 @@ DeserializationError deserializeOpenMeteo(String json,
     r.current.wind_direction_10m   = current["wind_direction_10m"]  .as<int>();
     r.current.precipitation        = current["precipitation"]       .as<float>();
     r.current.weather_code         = current["weather_code"]        .as<int>();
+    r.current.is_day               = current["is_day"]              .as<int>();
 
     for (i = 0; i < OM_NUM_HOURLY; i++)
     {
