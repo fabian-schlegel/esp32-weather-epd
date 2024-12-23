@@ -41,11 +41,11 @@ const uint8_t PIN_EPD_PWR  = 14; // Irrelevant if directly connected to 3.3V
 const uint8_t PIN_BME_SDA = 17;
 const uint8_t PIN_BME_SCL = 16;
 const uint8_t PIN_BME_PWR =  4;   // Irrelevant if directly connected to 3.3V
-const uint8_t BME_ADDRESS = 0x77; // If sensor does not work, try 0x76
+const uint8_t BME_ADDRESS = 0x76; // If sensor does not work, try 0x76 or 0x77
 
 // WIFI
-const char *WIFI_SSID     = "ssid";
-const char *WIFI_PASSWORD = "password";
+const char *WIFI_SSID     = "SID";
+const char *WIFI_PASSWORD = "PASSWORD";
 const unsigned long WIFI_TIMEOUT = 10000; // ms, WiFi connection timeout.
 
 // HTTP
@@ -79,10 +79,15 @@ const String OWM_ONECALL_VERSION = "3.0";
 // LOCATION
 // Set your latitude and longitude.
 // (used to get weather data as part of API requests to OpenWeatherMap)
-const String LAT = "51.05";
-const String LON = "13.74";
 // City name that will be shown in the top-right corner of the display.
-const String CITY_STRING = "Dresden";
+
+// const String LAT = "51.06";
+// const String LON = "13.75";
+// const String CITY_STRING = "Dresden";
+
+const String LAT = "51.14";
+const String LON = "14.93";
+const String CITY_STRING = "Rauschwalde";
 
 // TIME
 // For list of time zones see
